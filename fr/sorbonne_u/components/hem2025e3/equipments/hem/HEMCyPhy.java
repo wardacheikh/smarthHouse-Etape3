@@ -32,7 +32,7 @@ package fr.sorbonne_u.components.hem2025e3.equipments.hem;
 // The fact that you are presently reading this means that you have had
 // knowledge of the CeCILL-C license and that you accept its terms.
 
-import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.AbstractComponent; 
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.cyphy.ExecutionMode;
 import fr.sorbonne_u.components.cyphy.utils.aclocks.ClocksServerWithSimulation;

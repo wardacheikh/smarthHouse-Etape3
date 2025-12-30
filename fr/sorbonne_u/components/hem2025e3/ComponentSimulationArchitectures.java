@@ -59,6 +59,7 @@ import fr.sorbonne_u.components.hem2025e3.equipments.heater.sil.events.SIL_SetPo
 import fr.sorbonne_u.components.hem2025e2.equipments.heater.mil.events.SwitchOffHeater;
 import fr.sorbonne_u.components.hem2025e2.equipments.heater.mil.events.SwitchOnHeater;
 import fr.sorbonne_u.components.hem2025e3.equipements.wifi.BoxWifiCyPhy;
+import fr.sorbonne_u.components.hem2025e3.equipements.wifi.sil.BoxWifiElectricitySILModel;
 import fr.sorbonne_u.components.hem2025e3.equipements.wifi.sil.BoxWifiStateSILModel;
 import fr.sorbonne_u.components.hem2025e3.equipments.hairdryer.HairDryerCyPhy;
 import fr.sorbonne_u.components.hem2025e3.equipments.hairdryer.sil.HairDryerStateSILModel;
@@ -163,19 +164,27 @@ public abstract class	ComponentSimulationArchitectures
 						));
 		
 		// Après l'ajout du hair dryer, ajouter le Box WiFi
-		atomicModelDescriptors.put(
-		    BoxWifiStateSILModel.URI,
-		    RTComponentAtomicModelDescriptor.create(
-		        BoxWifiStateSILModel.URI,
-		        (Class<? extends EventI>[]) new Class<?>[]{},
-		        (Class<? extends EventI>[]) new Class<?>[]{
-		            SwitchOnBoxWifi.class,
-		            SwitchOffBoxWifi.class,
-		            ActivateWifiBoxWifi.class,
-		            DeactivateWifiBoxWifi.class},
-		        simulatedTimeUnit,
-		        BoxWifiCyPhy.REFLECTION_INBOUND_PORT_URI
-		    ));
+		 System.out.println("BoxWifiStateSILModel.URI: " + BoxWifiStateSILModel.URI);
+		    System.out.println("BoxWifiCyPhy.REFLECTION_INBOUND_PORT_URI: " + BoxWifiCyPhy.REFLECTION_INBOUND_PORT_URI);
+		    
+		 // AU LIEU DE BoxWifiStateSILModel, utilisez BoxWifiElectricitySILModel :
+		    atomicModelDescriptors.put(
+		    	    BoxWifiStateSILModel.URI,
+		    	    RTComponentAtomicModelDescriptor.create(
+		    	        BoxWifiStateSILModel.URI,
+		    	        (Class<? extends EventI>[]) new Class<?>[]{}, // PAS d'import
+		    	        (Class<? extends EventI>[]) new Class<?>[]{   // Exports vers ElectricMeter
+		    	            SwitchOnBoxWifi.class,
+		    	            SwitchOffBoxWifi.class,
+		    	            ActivateWifiBoxWifi.class,
+		    	            DeactivateWifiBoxWifi.class
+		    	        },
+		    	        simulatedTimeUnit,
+		    	        BoxWifiCyPhy.REFLECTION_INBOUND_PORT_URI
+		    	    )
+		    	);
+	    System.out.println("BoxWifiStateSILModel ajouté aux atomicModelDescriptors");
+
 		atomicModelDescriptors.put(
 				HeaterCoupledModel.URI,
 				RTComponentAtomicModelDescriptor.create(
@@ -191,29 +200,33 @@ public abstract class	ComponentSimulationArchitectures
 						HeaterCyPhy.REFLECTION_INBOUND_PORT_URI));
 
 		// The electric meter also has a SIL simulation model
-		// The electric meter also has a SIL simulation model
 		atomicModelDescriptors.put(
-		    ElectricMeterCoupledModel.URI,
-		    RTComponentAtomicModelDescriptor.create(
-		        ElectricMeterCoupledModel.URI,
-		        (Class<? extends EventI>[]) new Class<?>[]{
-		            SwitchOnHairDryer.class,
-		            SwitchOffHairDryer.class,
-		            SetLowHairDryer.class,
-		            SetHighHairDryer.class,
-		            SIL_SetPowerHeater.class,
-		            SwitchOnHeater.class,
-		            SwitchOffHeater.class,
-		            Heat.class,
-		            DoNotHeat.class,
-		            // AJOUTER LES ÉVÉNEMENTS BOX WIFI ICI :
-		            SwitchOnBoxWifi.class,
-		            SwitchOffBoxWifi.class,
-		            ActivateWifiBoxWifi.class,
-		            DeactivateWifiBoxWifi.class},
-		        (Class<? extends EventI>[]) new Class<?>[]{},
-		        simulatedTimeUnit,
-		        ElectricMeterCyPhy.REFLECTION_INBOUND_PORT_URI));
+			    ElectricMeterCoupledModel.URI,
+			    RTComponentAtomicModelDescriptor.create(
+			        ElectricMeterCoupledModel.URI,
+			        (Class<? extends EventI>[]) new Class<?>[]{
+			            // HairDryer events
+			            SwitchOnHairDryer.class,
+			            SwitchOffHairDryer.class,
+			            SetLowHairDryer.class,
+			            SetHighHairDryer.class,
+			            // Heater events
+			            SIL_SetPowerHeater.class,
+			            SwitchOnHeater.class,
+			            SwitchOffHeater.class,
+			            Heat.class,
+			            DoNotHeat.class,
+			            // Box WiFi events - AJOUTÉS ICI
+			            SwitchOnBoxWifi.class,
+			            SwitchOffBoxWifi.class,
+			            ActivateWifiBoxWifi.class,
+			            DeactivateWifiBoxWifi.class
+			        },
+			        (Class<? extends EventI>[]) new Class<?>[]{}, // Pas d'export
+			        simulatedTimeUnit,
+			        ElectricMeterCyPhy.REFLECTION_INBOUND_PORT_URI
+			    )
+			);
 		// map that will contain the coupled model descriptors to construct
 		// the simulation architecture
 		Map<String,CoupledModelDescriptor> coupledModelDescriptors =
@@ -222,13 +235,13 @@ public abstract class	ComponentSimulationArchitectures
 		// the set of submodels of the coupled model, given by their URIs
 		Set<String> submodels = new HashSet<String>();
 		submodels.add(HairDryerStateSILModel.URI);
-		submodels.add(HeaterCoupledModel.URI);
+		submodels.add(HeaterCoupledModel.URI);	
+		submodels.add(BoxWifiStateSILModel.URI); 
 		submodels.add(ElectricMeterCoupledModel.URI);
-		submodels.add(BoxWifiStateSILModel.URI);
 		// event exchanging connections between exporting and importing
 		// models
-		Map<EventSource,EventSink[]> connections =
-									new HashMap<EventSource,EventSink[]>();
+		Map<EventSource,EventSink[]> connections = new HashMap<EventSource,EventSink[]>();
+
 
 		// first, the events going from the hair dryer to the electric meter
 		connections.put(
@@ -299,34 +312,39 @@ public abstract class	ComponentSimulationArchitectures
 				});
 		// Après les connections du heater, ajouter celles du Box WiFi
 		connections.put(
-		    new EventSource(BoxWifiStateSILModel.URI,
-		                    SwitchOnBoxWifi.class),
-		    new EventSink[] {
-		        new EventSink(ElectricMeterCoupledModel.URI,
-		                      SwitchOnBoxWifi.class)
-		    });
-		connections.put(
-		    new EventSource(BoxWifiStateSILModel.URI,
-		                    SwitchOffBoxWifi.class),
-		    new EventSink[] {
-		        new EventSink(ElectricMeterCoupledModel.URI,
-		                      SwitchOffBoxWifi.class)
-		    });
-		connections.put(
-		    new EventSource(BoxWifiStateSILModel.URI,
-		                    ActivateWifiBoxWifi.class),
-		    new EventSink[] {
-		        new EventSink(ElectricMeterCoupledModel.URI,
-		                      ActivateWifiBoxWifi.class)
-		    });
-		connections.put(
-		    new EventSource(BoxWifiStateSILModel.URI,
-		                    DeactivateWifiBoxWifi.class),
-		    new EventSink[] {
-		        new EventSink(ElectricMeterCoupledModel.URI,
-		                      DeactivateWifiBoxWifi.class)
-		    });
+			    new EventSource(BoxWifiStateSILModel.URI, SwitchOnBoxWifi.class),
+			    new EventSink[] {
+			        new EventSink(ElectricMeterCoupledModel.URI, SwitchOnBoxWifi.class)
+			    }
+			);
 
+			connections.put(
+			    new EventSource(BoxWifiStateSILModel.URI, SwitchOffBoxWifi.class),
+			    new EventSink[] {
+			        new EventSink(ElectricMeterCoupledModel.URI, SwitchOffBoxWifi.class)
+			    }
+			);
+
+			connections.put(
+			    new EventSource(BoxWifiStateSILModel.URI, ActivateWifiBoxWifi.class),
+			    new EventSink[] {
+			        new EventSink(ElectricMeterCoupledModel.URI, ActivateWifiBoxWifi.class)
+			    }
+			);
+
+			connections.put(
+			    new EventSource(BoxWifiStateSILModel.URI, DeactivateWifiBoxWifi.class),
+			    new EventSink[] {
+			        new EventSink(ElectricMeterCoupledModel.URI, DeactivateWifiBoxWifi.class)
+			    }
+			);
+
+		    System.out.println("BoxWifiStateSILModel ajouté aux submodels");
+		    
+		    // Avant de créer l'architecture
+		    System.out.println("Nombre de modèles atomics: " + atomicModelDescriptors.size());
+		    System.out.println("Nombre de modèles couplés: " + coupledModelDescriptors.size());
+		    System.out.println("Nombre de submodels: " + submodels.size());
 		// coupled model descriptor
 		coupledModelDescriptors.put(
 				rootModelURI,
@@ -352,6 +370,8 @@ public abstract class	ComponentSimulationArchitectures
 						simulatedTimeUnit);
 
 		return architecture;
+		
+		
 	}
 }
 // -----------------------------------------------------------------------------

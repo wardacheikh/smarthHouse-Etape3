@@ -32,7 +32,7 @@ package fr.sorbonne_u.components.hem2025e3.equipments.meter.sil;
 // The fact that you are presently reading this means that you have had
 // knowledge of the CeCILL-C license and that you accept its terms.
 
-import java.util.Map;
+import java.util.Map; 
 import java.util.concurrent.TimeUnit;
 import fr.sorbonne_u.devs_simulation.hioa.models.vars.StaticVariableDescriptor;
 import fr.sorbonne_u.devs_simulation.hioa.models.vars.VariableSink;

@@ -33,7 +33,7 @@ package fr.sorbonne_u.components.hem2025e3.equipments.meter.sil;
 // The fact that you are presently reading this means that you have had
 // knowledge of the CeCILL-C license and that you accept its terms.
 
-import java.util.HashMap;
+import java.util.HashMap; 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -48,6 +48,12 @@ import fr.sorbonne_u.components.hem2025e2.equipments.heater.mil.events.DoNotHeat
 import fr.sorbonne_u.components.hem2025e2.equipments.heater.mil.events.Heat;
 import fr.sorbonne_u.components.hem2025e2.equipments.heater.mil.events.SwitchOffHeater;
 import fr.sorbonne_u.components.hem2025e2.equipments.heater.mil.events.SwitchOnHeater;
+import fr.sorbonne_u.components.hem2025e2.equipments.BoxWifi.mil.events.SwitchOnBoxWifi;
+import fr.sorbonne_u.components.hem2025e2.equipments.BoxWifi.mil.events.SwitchOffBoxWifi;
+import fr.sorbonne_u.components.hem2025e2.equipments.BoxWifi.mil.events.ActivateWifiBoxWifi;
+import fr.sorbonne_u.components.hem2025e2.equipments.BoxWifi.mil.events.DeactivateWifiBoxWifi;
+import fr.sorbonne_u.components.hem2025e3.equipements.wifi.sil.BoxWifiElectricitySILModel;
+
 import fr.sorbonne_u.components.hem2025e3.equipments.heater.sil.events.SIL_SetPowerHeater;
 import fr.sorbonne_u.devs_simulation.architectures.RTArchitecture;
 import fr.sorbonne_u.devs_simulation.hioa.architectures.HIOA_Composer;
@@ -157,7 +163,14 @@ public abstract class	LocalSimulationArchitectures
 						simulatedTimeUnit,
 						null,
 						accelerationFactor));
-
+		atomicModelDescriptors.put(
+				BoxWifiElectricitySILModel.URI,
+				RTAtomicHIOA_Descriptor.create(
+						BoxWifiElectricitySILModel.class,
+						BoxWifiElectricitySILModel.URI,
+						simulatedTimeUnit,
+						null,
+						accelerationFactor));
 		// map that will contain the coupled model descriptors to construct
 		// the simulation architecture
 		Map<String,CoupledModelDescriptor> coupledModelDescriptors =
@@ -168,6 +181,8 @@ public abstract class	LocalSimulationArchitectures
 		submodels.add(ElectricMeterElectricitySILModel.URI);
 		submodels.add(HairDryerElectricitySILModel.URI);
 		submodels.add(HeaterElectricitySILModel.URI);
+		submodels.add(BoxWifiElectricitySILModel.URI);
+
 
 		Map<Class<? extends EventI>,EventSink[]> imported = new HashMap<>();
 		imported.put(
@@ -225,7 +240,32 @@ public abstract class	LocalSimulationArchitectures
 						new EventSink(HeaterElectricitySILModel.URI,
 									  DoNotHeat.class)
 				});
-
+		
+		imported.put(
+				SwitchOnBoxWifi.class,
+				new EventSink[] {
+					new EventSink(BoxWifiElectricitySILModel.URI,
+								  SwitchOnBoxWifi.class)
+				});
+		imported.put(
+				SwitchOffBoxWifi.class,
+				new EventSink[] {
+					new EventSink(BoxWifiElectricitySILModel.URI,
+								  SwitchOffBoxWifi.class)
+				});
+		imported.put(
+				ActivateWifiBoxWifi.class,
+				new EventSink[] {
+					new EventSink(BoxWifiElectricitySILModel.URI,
+								  ActivateWifiBoxWifi.class)
+				});
+		imported.put(
+				DeactivateWifiBoxWifi.class,
+				new EventSink[] {
+					new EventSink(BoxWifiElectricitySILModel.URI,
+								  DeactivateWifiBoxWifi.class)
+				});
+		
 		// variable bindings between exporting and importing models
 		Map<VariableSource,VariableSink[]> bindings =
 								new HashMap<VariableSource,VariableSink[]>();
@@ -244,6 +284,15 @@ public abstract class	LocalSimulationArchitectures
 								   HeaterElectricitySILModel.URI),
 				new VariableSink[] {
 					new VariableSink("currentHeaterIntensity",
+									 Double.class,
+									 ElectricMeterElectricitySILModel.URI)
+				});
+		bindings.put(
+				new VariableSource("currentIntensity",
+								   Double.class,
+								   BoxWifiElectricitySILModel.URI),
+				new VariableSink[] {
+					new VariableSink("currentBoxWifiIntensity",
 									 Double.class,
 									 ElectricMeterElectricitySILModel.URI)
 				});

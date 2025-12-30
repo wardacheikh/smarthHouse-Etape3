@@ -382,8 +382,6 @@ public class BoxWifiCyPhy extends AbstractCyPhyComponent implements BoxWifiImple
     public synchronized void start() throws ComponentStartException {
         super.start();
 
-        // SUPPRIMÉ : Tout le code d'enregistrement HEM
-        // Création du plugin de simulation seulement pour les tests SIL
         try {
             switch (this.getExecutionMode()) {
             case STANDARD:

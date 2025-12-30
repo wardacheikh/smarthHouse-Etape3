@@ -23,7 +23,7 @@ import fr.sorbonne_u.devs_simulation.utils.StandardLogger;
 
 @ModelExternalEvents(
     imported = {SwitchOnBoxWifi.class, SwitchOffBoxWifi.class,
-                ActivateWifiBoxWifi.class, DeactivateWifiBoxWifi.class},
+    		ActivateWifiBoxWifi.class, DeactivateWifiBoxWifi.class},
     exported = {SwitchOnBoxWifi.class, SwitchOffBoxWifi.class,
     		ActivateWifiBoxWifi.class, DeactivateWifiBoxWifi.class}
 )
@@ -65,6 +65,10 @@ public class BoxWifiStateSILModel extends AtomicModel {
             // set the logger to a standard simulation logger
             this.getSimulationEngine().setLogger(new StandardLogger());
         }
+        System.out.println("=== CONSTRUCTEUR BoxWifiStateSILModel ===");
+        System.out.println("URI: " + uri);
+        System.out.println("simulatedTimeUnit: " + simulatedTimeUnit);
+        System.out.println("simulationEngine: " + (simulationEngine != null ? "non null" : "null"));
     }
 
     // -------------------------------------------------------------------------
@@ -147,16 +151,15 @@ public class BoxWifiStateSILModel extends AtomicModel {
         }
     }
 
+    
     @Override
     public ArrayList<EventI> output() {
-        if (this.lastReceived != null) {
-            ArrayList<EventI> ret = new ArrayList<EventI>();
-            ret.add(this.lastReceived);
-            this.lastReceived = null;
-            return ret;
-        } else {
-            return null;
-        }
+        assert this.lastReceived != null;
+        
+        ArrayList<EventI> ret = new ArrayList<EventI>();
+        ret.add(this.lastReceived);  // ← Retourner l'événement directement
+        this.lastReceived = null;
+        return ret;
     }
 
     @Override
@@ -207,13 +210,16 @@ public class BoxWifiStateSILModel extends AtomicModel {
     @Override
     public void userDefinedInternalTransition(Duration elapsedTime) {
         super.userDefinedInternalTransition(elapsedTime);
+
         
         // After output, reset lastReceived (already done in output() method)
         // This transition doesn't change the state, just prepares for next event
         
         if (VERBOSE && this.lastReceived == null) {
             this.logMessage("Internal transition: ready for next event");
-        }
+        }   
+        this.lastReceived = null; // Reset après output
+
     }
 
     @Override

@@ -32,7 +32,7 @@ package fr.sorbonne_u.components.hem2025e3.equipments.meter.sil;
 // The fact that you are presently reading this means that you have had
 // knowledge of the CeCILL-C license and that you accept its terms.
 
-import java.util.ArrayList;
+import java.util.ArrayList; 
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -128,7 +128,9 @@ import java.text.NumberFormat;
 	{@ModelImportedVariable(name = "currentHeaterIntensity",
 							type = Double.class),
 	 @ModelImportedVariable(name = "currentHairDryerIntensity",
-	 						type = Double.class)
+	 						type = Double.class),
+	 @ModelImportedVariable(name = "currentBoxWifiIntensity",  // AJOUT
+		type = Double.class)
 //	 @ModelImportedVariable(name = "solarPanelOutputPower",
 //	 						type = Double.class),
 //	 @ModelImportedVariable(name = "batteriesInputPower",
@@ -216,7 +218,8 @@ extends		AtomicHIOA
 	/** current intensity of the hair dryer in amperes.						*/
 	@ImportedVariable(type = Double.class)
 	protected Value<Double>			currentHairDryerIntensity;
-
+	@ImportedVariable(type = Double.class)                                    
+	protected Value<Double>			currentBoxWifiIntensity;  
 //	/** current total power production of the house in the power unit
 //	 *  defined by the electric meter.										*/
 //	@InternalVariable(type = Double.class)
@@ -302,6 +305,16 @@ extends		AtomicHIOA
 				"currentHairDryerIntensity == null || !i "
 				+ "currentHairDryerIntensity.isInitialised() || "
 				+ "currentHairDryerIntensity.getValue() >= 0.0");
+		ret &= AssertionChecking.checkImplementationInvariant(
+				instance.currentBoxWifiIntensity == null ||
+					!instance.currentBoxWifiIntensity.isInitialised() ||
+						instance.currentBoxWifiIntensity.getValue() >= 0.0,
+				ElectricMeterElectricitySILModel.class,
+				instance,
+				"currentBoxWifiIntensity == null || !i "
+				+ "currentBoxWifiIntensity.isInitialised() || "
+				+ "currentBoxWifiIntensity.getValue() >= 0.0");
+		
 		ret &= AssertionChecking.checkImplementationInvariant(
 				instance.currentIntensity != null &&
 					(!instance.currentIntensity.isInitialised() ||
@@ -478,6 +491,7 @@ extends		AtomicHIOA
 		// simple sum of all incoming intensities
 		return this.currentHairDryerIntensity.getValue()
 					+ this.currentHeaterIntensity.getValue()
+					+this.currentBoxWifiIntensity.getValue()
 //					+ this.batteriesInputPower.getValue()
 					;
 	}
@@ -562,7 +576,9 @@ extends		AtomicHIOA
 		if (!this.currentIntensity.isInitialised()
 //				&& this.batteriesInputPower.isInitialised()
 				&& this.currentHairDryerIntensity.isInitialised()
-				&& this.currentHeaterIntensity.isInitialised()) {
+				&& this.currentHeaterIntensity.isInitialised()
+		        && this.currentBoxWifiIntensity.isInitialised())
+		{
 			double i = this.computeTotalIntensity();
 			this.currentIntensity.initialise(i);
 			this.cumulativeConsumption.initialise(0.0);

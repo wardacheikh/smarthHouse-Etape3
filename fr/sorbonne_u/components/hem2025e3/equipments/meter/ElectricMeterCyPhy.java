@@ -32,7 +32,7 @@ package fr.sorbonne_u.components.hem2025e3.equipments.meter;
 // The fact that you are presently reading this means that you have had
 // knowledge of the CeCILL-C license and that you accept its terms.
 
-import fr.sorbonne_u.components.annotations.OfferedInterfaces;
+import fr.sorbonne_u.components.annotations.OfferedInterfaces; 
 import fr.sorbonne_u.components.cyphy.AbstractCyPhyComponent;
 import fr.sorbonne_u.components.cyphy.ExecutionMode;
 import fr.sorbonne_u.components.cyphy.annotations.LocalArchitecture;
@@ -55,6 +55,10 @@ import fr.sorbonne_u.components.hem2025e2.equipments.heater.mil.events.DoNotHeat
 import fr.sorbonne_u.components.hem2025e2.equipments.heater.mil.events.Heat;
 import fr.sorbonne_u.components.hem2025e2.equipments.heater.mil.events.SwitchOffHeater;
 import fr.sorbonne_u.components.hem2025e2.equipments.heater.mil.events.SwitchOnHeater;
+import fr.sorbonne_u.components.hem2025e2.equipments.BoxWifi.mil.events.SwitchOnBoxWifi;
+import fr.sorbonne_u.components.hem2025e2.equipments.BoxWifi.mil.events.SwitchOffBoxWifi;
+import fr.sorbonne_u.components.hem2025e2.equipments.BoxWifi.mil.events.ActivateWifiBoxWifi;
+import fr.sorbonne_u.components.hem2025e2.equipments.BoxWifi.mil.events.DeactivateWifiBoxWifi;
 import fr.sorbonne_u.components.hem2025e3.equipments.heater.sil.events.SIL_SetPowerHeater;
 import fr.sorbonne_u.components.hem2025e3.equipments.meter.sil.LocalSimulationArchitectures;
 import fr.sorbonne_u.components.utils.tests.TestScenario;
@@ -179,27 +183,26 @@ import java.util.function.Supplier;
  */
 // -----------------------------------------------------------------------------
 @SIL_Simulation_Architectures({
-	// fragile: fields in annotations cannot be defined by a class constant due
-	// to Java annotations field initialisers limited to static values only
 	@LocalArchitecture(
-		// must be equal to LOCAL_ARCHITECTURE_URI
 		uri = "silIntegrationTests",
-		// must be equal to the URI of the instance of
-		// ElectricMeterCoupledModel
 		rootModelURI = "ElectricMeterCoupledModel",
-		// next fields must be the same as the values used in the local
-		// architecture
 		simulatedTimeUnit = TimeUnit.HOURS,
 		externalEvents = @ModelExternalEvents(
-			imported = {SwitchOnHairDryer.class,	// HairDryer events
-						SwitchOffHairDryer.class,
-						SetLowHairDryer.class,
-						SetHighHairDryer.class,
-						SIL_SetPowerHeater.class,		// Heater events
-						SwitchOnHeater.class,
-						SwitchOffHeater.class,
-						Heat.class,
-						DoNotHeat.class}
+			imported = {
+				SwitchOnHairDryer.class,
+				SwitchOffHairDryer.class,
+				SetLowHairDryer.class,
+				SetHighHairDryer.class,
+				SIL_SetPowerHeater.class,
+				SwitchOnHeater.class,
+				SwitchOffHeater.class,
+				Heat.class,
+				DoNotHeat.class,
+				SwitchOnBoxWifi.class,
+				SwitchOffBoxWifi.class,
+				ActivateWifiBoxWifi.class,
+				DeactivateWifiBoxWifi.class
+			}
 		)
 	)
 })
